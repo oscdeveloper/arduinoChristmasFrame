@@ -39,7 +39,7 @@ void setup() {
   //Wire.begin(i2cDeviceAddress[0]);
   
   GSM.begin(9600);
-  Serial.begin(9600);
+  //Serial.begin(9600);
   delay(300); 
   pinMode(13, OUTPUT); // test builtin led
 
@@ -81,15 +81,15 @@ void loop() {
     if ( inChar == '\n' ) {
       //Serial.println(inData);
       if ( strstr(inData, "+C") ) {
-        Serial.print("resetBuffer:");
-        Serial.println(inData);
+        //Serial.print("resetBuffer:");
+        //Serial.println(inData);
         resetBuffer();
       } 
 
       if ( strlen(inData) > 2 ) {
-        Serial.print(strlen(inData));
-        Serial.print("Data:");
-        Serial.println(inData);
+        //Serial.print(strlen(inData));
+        //Serial.print("Data:");
+        //Serial.println(inData);
         lcd.clear();        
         lcd.setCursor(8,0);
         lcd.print("SMS");
@@ -104,7 +104,7 @@ void loop() {
           lcd.backlight();
           delay(100);
         }        
-        //i2cSendData(2, 1); // arduino servos
+        i2cSendData(2, 1); // arduino servos
       }
     }
   }
@@ -113,7 +113,9 @@ void loop() {
 void i2cSendData(int deviceAddress, int data) {
   Wire.beginTransmission(i2cDeviceAddress[deviceAddress]);
   Wire.write(data);
-  Wire.endTransmission(true);
+  Wire.endTransmission();
+  //Serial.print("i2cSendData:");
+  //Serial.println(i2cDeviceAddress[deviceAddress]);
 }
 
 void sendSMS(String msg) {
