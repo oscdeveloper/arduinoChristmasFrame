@@ -90,13 +90,20 @@ void loop() {
         Serial.print(strlen(inData));
         Serial.print("Data:");
         Serial.println(inData);
-        lcd.clear();
+        lcd.clear();        
         lcd.setCursor(8,0);
         lcd.print("SMS");
         lcd.setCursor(0,1);
         memcpy(inDataLcd, inData, strlen(inData) - 2);
         lcd.print(inDataLcd);
         resetBuffer();
+        
+        for ( int i=0; i<=5; i++ ) {
+          lcd.noBacklight();
+          delay(100);
+          lcd.backlight();
+          delay(100);
+        }        
         //i2cSendData(2, 1); // arduino servos
       }
     }
