@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <Servo.h>
 
-int i2cAddress = 2;
+int i2cAddress = 0x02;
 static volatile int dataReceived = 0;
 
 Servo servoReindeer;
@@ -22,6 +22,8 @@ int servoAngleAnimationMin = 60;
 void setup() {
   Wire.begin(i2cAddress);
   Wire.onReceive(receiveEvent);
+
+  Serial.begin(9600);
     
   servoReindeer.attach(servoReindeerPin);
   servoSantaClaus.attach(servoSantaClausPin);
@@ -32,6 +34,8 @@ void setup() {
 
 void loop() {
   if (dataReceived) {
+      Serial.print("loop:");
+  Serial.println(dataReceived);
     noInterrupts();
     dataReceived = 0;
     interrupts();
@@ -42,6 +46,8 @@ void loop() {
 void receiveEvent() {
   //int x = Wire.read();
   dataReceived = 1;
+  Serial.print("receiveEvent:");
+  Serial.println(dataReceived);  
 }
 
 void shakeRotateServo() {
