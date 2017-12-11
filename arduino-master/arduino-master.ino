@@ -36,7 +36,7 @@ boolean validSender = false;
 
 
 void setup() {
-  Wire.begin(i2cDeviceAddress[0]);
+  //Wire.begin(i2cDeviceAddress[0]);
   
   GSM.begin(9600);
   Serial.begin(9600);
@@ -95,10 +95,9 @@ void loop() {
         lcd.print("SMS");
         lcd.setCursor(0,1);
         memcpy(inDataLcd, inData, strlen(inData) - 2);
-        //inDataLcd = inData
         lcd.print(inDataLcd);
         resetBuffer();
-        i2cSendData(2, 1); // arduino servos
+        //i2cSendData(2, 1); // arduino servos
       }
     }
   }
@@ -123,65 +122,8 @@ void sendSMS(String msg) {
 }
 
 void resetBuffer() {
+  memset(inDataLcd, 0, sizeof(inDataLcd));
   memset(inData, 0, sizeof(inData));
   bufferIndex = 0;
 }
-
-void parseSMSContent() {
-
-  char* ptr = inData;
-
-  while ( strlen(ptr) >= 2 ) {
-
-    if ( ptr[1] == '.' ) {
-
-      if ( 
-        ptr[2] == '0'
-        && ptr[3] == '0'
-        && ptr[4] == '0'
-        && ptr[5] == '0'
-      ) {
-
-        if ( ptr[0] == '0' ) {
-          
-          alarmStatus = false;
-          Serial.println("Alarm is OFF - deactivated");
-          //digitalWrite(13, LOW);
-          sendSMS("Alarm is OFF - deactivated");
-          
-        } else if ( ptr[0] == '1' ) {
-          
-          alarmStatus = true;
-          Serial.println("Alarm is ON - activated");
-          //digitalWrite(13, HIGH);
-          sendSMS("Alarm is ON - activated");
-          
-        } else if ( ptr[0] == '?' ) {
-          
-          char alarmStatusString[]="Alarm status: ";
-          char alarmStatusStringConcat[20];
-          sprintf(alarmStatusStringConcat,"%s%s",alarmStatusString,(alarmStatus == false ? "OFF" : "ON"));
-          Serial.println(alarmStatusStringConcat);
-          sendSMS(alarmStatusStringConcat);
-          
-        }else {        
-          
-          Serial.println("You have to activate or deactivate the alarm");
-          sendSMS("You have to activate or deactivate the alarm");
-        }
-      
-      } else {
-        Serial.println("Wrong PIN");
-        sendSMS("Wrong PIN");
-      }
-      
-    } else {
-      Serial.println(ptr[1]);
-      Serial.println("Wrong command format");
-    }
-
-    ptr += 2;
-  }
-}
-
 
