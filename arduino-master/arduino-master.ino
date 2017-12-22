@@ -8,7 +8,7 @@ LiquidCrystal_I2C lcd(0x3F,20,4);  // set the LCD address to 0x27 for a 16 chars
 int i2cDeviceAddress[] = {4,1,2}; // 0 - master uno,  1 - speaker, 2 - servo
 // address number 4 is master UNO, zero is only for array index number
 
-char phone_no[]="0048508513055";
+char phone_no[]="YOUR_PHONE_NUMBER";
 
 enum _parseState {
   PS_DETECT_MSG_TYPE,
