@@ -5,9 +5,10 @@ SoftwareSerial GSM(7, 8); // RX, TX
 
 LiquidCrystal_I2C lcd(0x3F,20,4);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
-int i2cDeviceAddress[] = {4,1,2}; // 0 - master uno,  1 - sound, 2 - servo
+int i2cDeviceAddress[] = {4,1,2}; // 0 - master uno,  1 - speaker, 2 - servo
+// address number 4 is master UNO, zero is only for array index number
 
-char phone_no[]="+48508513055";
+char phone_no[]="0048508513055";
 
 enum _parseState {
   PS_DETECT_MSG_TYPE,
@@ -28,49 +29,45 @@ boolean alarmStatus = false;
 char inData[300];
 char inDataLcd[300];
 byte bufferIndex = 0;
-byte pos = 0; // TODO remove
 char inChar;
 
 int lastReceivedSMSId = 0;
 boolean validSender = false;
 
+String inDataString;
+
 
 void setup() {
-  //Wire.begin(i2cDeviceAddress[0]);
-  
-  GSM.begin(9600);
-  //Serial.begin(9600);
-  delay(300); 
-  pinMode(13, OUTPUT); // test builtin led
 
+  lcdShowWelcomeText();
+
+  GSM.begin(9600);
+  Serial.begin(9600);
+
+  // synchronize A6 module with Arduino 9600 boudrate
+  for( int i=0; i<=10; i++) {
+    delay(500);
+    GSM.println("AT");  
+  }
+  delay(5000);
+  
   GSM.println("AT+CMGF=1"); // select sms text mode
-  delay(2000);
+  delay(200);
 
   GSM.println("AT+CMGD=1,4"); // delete all sms from memory
-  delay(2000);
+  delay(200);
 
-  //delay(10000); // 10 sec
-  //sendSMS("Christmas frame powered on");  
-
+  sendSMS("Christmas frame powered on");  
+  delay(5000);
+  
   // Not really necessary but prevents the serial monitor from dropping any input
   while(GSM.available()) {
     Serial.write(GSM.read());
   }  
-
-  lcd.init();  
-  lcd.backlight();
-  lcd.setCursor(2,0);
-  lcd.print("Merry  Christmas");
-  delay(2000);
-  lcd.setCursor(3,1);
-  lcd.print("Motherfuckers!");
-  lcd.setCursor(4,2);
-  lcd.print("OH!  OH!  OH!");
-  delay(2000);
 }
 
 void loop() {
-  
+
   while( GSM.available() > 0 ) {
     
     inChar = GSM.read();
@@ -90,21 +87,26 @@ void loop() {
         //Serial.print(strlen(inData));
         //Serial.print("Data:");
         //Serial.println(inData);
-        lcd.clear();        
-        lcd.setCursor(8,0);
-        lcd.print("SMS");
-        lcd.setCursor(0,1);
-        memcpy(inDataLcd, inData, strlen(inData) - 2);
-        lcd.print(inDataLcd);
-        resetBuffer();
-        
-        for ( int i=0; i<=5; i++ ) {
-          lcd.noBacklight();
-          delay(100);
-          lcd.backlight();
-          delay(100);
-        }        
-        i2cSendData(2, 1); // arduino servos
+        //inDataString = String(inData);
+        //if( inDataString.indexOf("OK") == -1 ) {
+          lcd.clear();        
+          lcd.setCursor(8,0);
+          lcd.print("SMS");
+          lcd.setCursor(0,1);
+          memcpy(inDataLcd, inData, strlen(inData) - 2);
+          lcd.print(inDataLcd);
+          resetBuffer();
+          
+          for ( int i=0; i<=5; i++ ) {
+            lcd.noBacklight();
+            delay(100);
+            lcd.backlight();
+            delay(100);
+          }        
+          
+          i2cSendData(2, 1); // arduino servos
+          i2cSendData(1, 1); // arduino speaker          
+        //}
       }
     }
   }
@@ -134,5 +136,18 @@ void resetBuffer() {
   memset(inDataLcd, 0, sizeof(inDataLcd));
   memset(inData, 0, sizeof(inData));
   bufferIndex = 0;
+}
+
+void lcdShowWelcomeText() {
+  lcd.init();  
+  lcd.backlight();
+  lcd.setCursor(2,0);
+  lcd.print("Merry  Christmas");
+  delay(2000);
+  lcd.setCursor(3,1);
+  lcd.print("Motherfuckers!");
+  lcd.setCursor(4,2);
+  lcd.print("OH!  OH!  OH!");
+  delay(2000);
 }
 
