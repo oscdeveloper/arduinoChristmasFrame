@@ -19,6 +19,8 @@ int servoAngleShakeMin = 80;
 int servoAngleAnimationMax = 120;
 int servoAngleAnimationMin = 60;
 
+int loopNumber = 5;
+
 void setup() {
   Wire.begin(i2cAddress);
   Wire.onReceive(receiveEvent);
@@ -69,7 +71,7 @@ void rotateServo() {
 
   shakeRotateServo();
 
-  for ( int i=0; i<=3; i++ ) {
+  for ( int i=0; i<=loopNumber; i++ ) {
     
     for ( int angle = servoAngleAnimationMin; angle <= servoAngleAnimationMax; angle++ ) {
       servoReindeer.write(angle);
